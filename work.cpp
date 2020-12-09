@@ -194,17 +194,17 @@ T Erase (Tree_element<T>& Tree, T n)
 }
 
 template <typename T> //6 - удаление максимального узла
-void Delete_right_elements (Tree_element<T>& Tree)
+T Delete_right_elements (Tree_element<T>& Tree)
 {
-    delete Find_max_element(Tree) -> tree_next_left;
     delete Find_max_element(Tree);
+    return Balance(Tree);
 }
 
 template <typename T> //6 - удаление минимального узла
-void Delete_left_elements (Tree_element<T>& Tree)
+T Delete_left_elements (Tree_element<T>& Tree)
 {
-    delete Find_min_element(Tree) -> tree_next_right;
     delete Find_min_element(Tree);
+    return Balance(Tree);
 }
 
 template <typename T> //2
