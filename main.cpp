@@ -271,7 +271,6 @@ void Print (Tree_element<T>* Tree)
 			}
 		}
 		tabs -= 1;
-		key_time += 1;
 	}
 }
 
