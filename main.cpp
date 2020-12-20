@@ -246,7 +246,7 @@ void Print (Tree_element<T>* Tree)
 		Print_help (Tree, key_time, Vec);
 		if (key_time != key_max)
 		{
-			for (unsigned int h = 0; h <= tabs; h++)
+			for (unsigned int h = 0; h < tabs; h++)
 			{
 				std::cout << "\t";
 			{ 
