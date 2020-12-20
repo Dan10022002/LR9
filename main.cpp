@@ -310,6 +310,7 @@ Tree_element<T>* Print_help_max (Tree_element<T>* Tree, unsigned int key_max, st
 	}
 	Print_help_max (Tree -> tree_next_left , key_max, Vec);	
 	Print_help_max (Tree -> tree_next_right , key_max, Vec);
+	return Vec;
 }
 
 int main()
