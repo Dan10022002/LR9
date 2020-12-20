@@ -226,117 +226,91 @@ void Destructor (Tree_element<T>* Tree)
 template <typename T> //5
 void Print (Tree_element<T>* Tree)
 {
-    Balance(Tree);
-    unsigned int key1 = Find_max_element(Tree) -> key;
-    unsigned int key2 = Find_min_element(Tree) -> key;
-    unsigned int key_max;
-    if (key1 >= key2)
-    {
-        key_max = key1;
-    }
-    else
-    {
-        key_max = key2;
-    }
-    unsigned int tab = static_cast<int>(pow(2, (key_max - 1)));
-     if (Tree != nullptr)
-     {
-         std::vector<T> Vec;
-         Print_help(Tree, 200, Vec, 4, key_max);
-         T print_string;
-         print_string.value = -1;
-         for (int i = key_max; i > 0; i--)
-         {
-             for (int j = 0; j < Vec.size(); j++)
-             {
-                 if (Vec[j].key == i)
-                 {
-                     for (int k = 0; k < tab; k++)
-                     {
-                         std::cout << " ";
-                     }
-                     if (Vec[j].value == -1)
-                     {
-                         std::cout << "-";
-                     }
-                     else
-                     {
-                         std::cout << Vec[j].value;
-                     }
-                     for (int k = 0; k < (tab - 1); k++)
-                     {
-                         std::cout << " ";
-                     }
-                 }
-             }
-             tab = tab / 2;
-             std::cout << "\n";
-         }
-     }
+	Balance(Tree);
+	unsigned int key1 = Find_max_element(Tree) -> key;
+    	unsigned int key2 = Find_min_element(Tree) -> key;
+    	unsigned int key_max;
+   	if (key1 >= key2)
+   	{
+		key_max = key1;
+   	}
+	else
+	{
+		key_max = key2;
+	}
+	size_t String_size = 2 * pow (2, key_max) - 1;
+	for (unsigned int key_time = 0; key_time <= key_max; key_time++)
+	{
+		unsigned int tabs = String_size / 2;
+		std::vector<T> Vec;
+		Print_help (Tree, key_time, Vec);
+		if (key_time != key_max)
+		{
+			for (unsigned int h = 0; h <= tabs; h++)
+			{
+				std::cout << "\t";
+			{ 
+			for (int h: Vec)
+			{
+				std::cout << h;
+				while ((key_max - key_time) != 0)
+					{
+						std::cout << '\t";
+						
+					}
+			}
+			std::cout << "\n";
+			}
+		}
+		else //тогда это последний уровень дерева, что следует из его балансировки
+		{
+			Print_help_max (Tree, key_time, Vec);
+			for (int h: Vec)
+			{
+				std::cout << h << "\t";
+			}
+		}
+		tabs -= 1;
+		key_time += 1;
+	}
 }
 
 template <typename T> //5 - для систематизации печати - заполнение вектора значениями дерева
-void Print_help (Tree_element<T>* Tree, int k, std::vector<T>& Vec, int n, unsigned int key_max)
+Tree_element<T>* Print_help (Tree_element<T>* Tree, unsigned int key_time, std::vector<T>& Vec)
 {
-    if (Tree != nullptr)
-    {
-        T x;
-        if (k == 200)
-        {
-            x.key = key_max;
-            x.value = Tree -> value;
-            Vec.push_back(x);
-            x.key = key_max - 1;
-            if (Tree -> tree_next_left != nullptr)
-            {
-                x.value = Tree -> tree_next_left -> value;
-            }
-            else
-            {
-                x.value = -1;
-            }
-            Vec.push_back(x);
-            n = key_max - 1;
-            Print_help(Tree -> tree_next_left, 100, Vec, n - 1, key_max);
-            Print_help(Tree -> tree_next_right, 100, Vec, n - 1, key_max);
-        }
-        if (k == 100)
-        {
-            if ((Tree -> tree_next_left != nullptr) || (Tree -> tree_next_right != nullptr))
-            {
-                x.key = n;
-                if (Tree -> tree_next_left != nullptr)
-                {
-                    x.value = Tree -> tree_next_left -> value;
-                }
-                else
-                {
-                    x.value = -1;
-                }
-                Vec.push_back(x);
-                if (Tree -> tree_next_right != nullptr)
-                {
-                    x.value = Tree -> tree_next_right -> value;
-                }
-                else
-                {
-                    x.value = -1;
-                }
-                Vec.push_back(x);
-                Print_help(Tree -> tree_next_left, 100, Vec, n - 1, key_max);
-                Print_help(Tree -> tree_next_right, 100, Vec, n - 1, key_max);
-            }
-            else
-            {
-                x.key = n;
-                x.value = -1;
-                Vec.push_back(x);
-                Vec.push_back(x);
-                Print_help(Tree -> tree_next_left, 101, Vec, n - 1, key_max);
-                Print_help(Tree -> tree_next_right, 101, Vec, n - 1, key_max);
-            }
-        }
-    }
+	if (Tree -> key == key_time)
+	{	
+		Vec.push_back(Tree);
+	}
+	Print_help (Tree -> tree_next_left , key_time, Vec);	
+	Print_help (Tree -> tree_next_right , key_time, Vec);	
+	return Vec;
+}
+
+template <typename T> //5 - для систематизации печати - заполнение вектора значениями последнего уровня дерева
+Tree_element<T>* Print_help_max (Tree_element<T>* Tree, unsigned int key_max, std::vector<T>& Vec)
+{
+	if (Tree -> key == key_max - 1)
+	{	
+		if (Tree -> tree_next_left != 0)
+		{
+			Vec.push_back(Tree -> tree_next_left)
+		}
+		else
+		{
+			Vec.push_back(0);
+		}
+		if (Tree -> tree_next_right != 0)
+		{
+			Vec.push_back(Tree -> tree_next_right)
+		}
+		else
+		{
+			Vec.push_back(0);
+		}
+	}
+	Print_help_max (Tree -> tree_next_left , key_max, Vec);	
+	Print_help_max (Tree -> tree_next_right , key_max, Vec);
 }
 
 int main()
