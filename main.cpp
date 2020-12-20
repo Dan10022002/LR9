@@ -297,7 +297,7 @@ Tree_element<T>* Print_help_max (Tree_element<T>* Tree, unsigned int key_max, st
 		}
 		else
 		{
-			Vec.push_back(0);
+			Vec.push_back(" ");
 		}
 		if (Tree -> tree_next_right != 0)
 		{
@@ -305,7 +305,7 @@ Tree_element<T>* Print_help_max (Tree_element<T>* Tree, unsigned int key_max, st
 		}
 		else
 		{
-			Vec.push_back(0);
+			Vec.push_back(" ");
 		}
 	}
 	Print_help_max (Tree -> tree_next_left , key_max, Vec);	
