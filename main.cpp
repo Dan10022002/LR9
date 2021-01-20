@@ -1,333 +1,525 @@
-#include <iostream>
+include <iostream>
 #include <cmath>
 #include <vector>
 
-template <class T>
+template <typename T, typename K>
 struct Tree_element
 {
-    T value;
-    unsigned int key;
-    Tree_element* tree_next_left;
-    Tree_element* tree_next_right;
+	T value;
+	K key;
+	unsigned int height;
+	Tree_element* tree_next_right;
+	Tree_element* tree_next_left;
+	Tree_element* tree_prev;
 };
 
-template <typename T> //6 - поиск нужного элемента
-Tree_element<T>* Find_element (Tree_element<T>* Tree, T n)
+template <typename T, typename K>
+struct Tree
 {
-    if (Tree -> value == n)
-    {
-        return Tree;
-    }
-    if (Tree -> value > n)
-    {
-        if (Tree -> tree_next_left == nullptr)
-        {
-            return -1; //данного елемента нет
-        }
-        else
-        {
-            Find_element(Tree -> tree_next_left);
-        }
-    }
-    if (Tree -> value < n)
-    {
-        if (Tree -> tree_next_right == nullptr)
-        {
-            return -1; //данного елемента нет
-        }
-        else
-        {
-            Find_element(Tree -> tree_next_right);
-        }
-    }
+	Tree_element<T, K>* tree_root;
+};
+
+template <typename T, typename K>
+void Constructor(Tree<T, K>* tree) //1
+{
+	tree->tree_root = nullptr;
 }
 
-template <typename T> //6 - поиск максимального элемента
-Tree_element<T>* Find_max_element (Tree_element<T>* Tree)
+template <typename T, typename K>
+void Fix_height(Tree_element<T, K>* tree_element)
 {
-    if (Tree -> tree_next_right == nullptr)
-    {
-        return Tree;
-    }
-    else
-    {
-        Find_max_element (Tree -> tree_next_right);
-    }
+	tree_element->height = tree_element->tree_prev->height + 1;
+	while (tree_element->tree_next_left != nullptr)
+	{
+		Fix_height(tree_element->tree_next_left);
+	}
+	while (tree_element->tree_next_left != nullptr)
+	{
+		Fix_height(tree_element->tree_next_right);
+	}
 }
 
-template <typename T> //6 - поиск минимального элемента
-Tree_element<T>* Find_min_element (Tree_element<T>* Tree)
+template <typename T, typename K>
+void Little_left_spin(Tree<T, K>* tree, Tree_element<T, K>* tree_element) 
 {
-    if (Tree -> tree_next_left == nullptr)
-    {
-        return Tree;
-    }
-    else
-    {
-        Find_min_element (Tree -> tree_left_right);
-    }
-}
-
-template <typename T> //6 - восстановление уровня узла
-void Fix_key (Tree_element<T>* Tree)
-{
-    unsigned int key1 = Tree -> tree_next_left -> key;
-    unsigned int key2 = Tree -> tree_next_right -> key;
-    if(key1 > key2)
-    {
-        Tree -> key = key1 + 1;
-    }
-    else
-    {
-        Tree -> key = key2 + 1;
-    }
-}
-
-template <typename T> //6 - правый поворот
-Tree_element<T>* Right_rotation (Tree_element<T>* Tree)
-{
-    Tree_element<T>& tree_time = Tree -> tree_next_left;
-    Tree -> tree_next_left = tree_time -> tree_next_right;
-    tree_time -> tree_next_right = Tree;
-    Fix_key (Tree);
-    Fix_key (tree_time);
-    return tree_time;
-}
-
-template <typename T> //6 - левый поворот
-Tree_element<T>* Left_rotation (Tree_element<T>* Tree)
-{
-    Tree_element<T>& tree_time = Tree -> tree_next_right;
-    Tree -> tree_next_right = tree_time -> tree_next_left;
-    tree_time -> tree_next_lift = Tree;
-    Fix_key (Tree);
-    Fix_key (tree_time);
-    return tree_time;
-}
-
-template <typename T> //6 - балансировка
-Tree_element<T>* Balance (Tree_element<T>* Tree)
-{
-    Fix_key (Tree);
-    if ((Tree -> tree_next_right -> key) - (Tree -> tree_next_left -> key) == 2)
-    {
-        if ((Tree -> tree_next_right -> trer_next_right -> key) - (Tree -> tree_next_right -> tree_next_left -> key) > 0)
-        {
-            Tree -> tree_next_right = Right_rotation (Tree -> tree_next_right);
-            Tree -> tree_next_right = Left_rotation (Tree -> tree_next_right);
-
-        }
-        else
-        {
-            Tree -> tree_next_right = Left_rotation (Tree -> tree_next_right);
-        }
-    }
-    if ((Tree -> tree_next_right -> key) - (Tree -> tree_next_left -> key) == -2)
-    {
-        if ((Tree -> tree_next_left -> trer_next_right -> key) - (Tree -> tree_next_left -> tree_next_left -> key) < 0)
-        {
-            Tree -> tree_next_left = Left_rotation (Tree -> tree_next_left);
-            Tree -> tree_next_left = Right_rotation (Tree -> tree_next_left);
-
-        }
-        else
-        {
-            Tree -> tree_next_left = Right_rotation (Tree -> tree_next_left);
-        }
-    }
-    return Tree;
-}
-
-template <typename T> //1
-void Constructor (Tree_element<T>* Tree)
-{
-    Tree -> value = 0;
-    Tree -> key = 1;
-    Tree -> tree_next_left = nullptr;
-    Tree -> tree_next_right = nullptr;
-}
-
-template <typename T> //3
-Tree_element<T>* Push (Tree_element<T>* Tree, T n)
-{
-    if (Tree -> value > n)
-    {
-        Tree -> tree_next_left = Push(Tree -> tree_next_left, n);
-    }
-    else
-    {
-        Tree -> tree_next_right = Push(Tree -> tree_next_right, n);
-    }
-    return Balance (Tree);
-}
-
-template <typename T> //4
-Tree_element<T>* Erase (Tree_element<T>* Tree, T n)
-{
-    if (Find_element(Tree, n) == -1)
-    {
-        std::cout << "There isn't a needed element.";
-    }
-    else
-    {
-        if ((Find_element(Tree, n) -> tree_next_left == nullptr) && (Find_element(Tree, n) -> tree_next_right == nullptr))
-        {
-            delete Find_element(Tree, n);
-            return Balance(Tree);
-        }
-        else
-        {
-            if (Tree -> value > n)
-            {
-                Find_max_element(Tree -> tree_next_left) -> tree_next_left = Find_element(Tree, n) -> tree_next_left;
-                Find_max_element(Tree -> tree_next_left) -> tree_next_right = Find_element(Tree, n) -> tree_next_right;
-                delete Find_element(Tree, n);
-                return Balance(Tree);
-            }
-            if (Tree -> value < n)
-            {
-                Find_min_element(Tree -> tree_next_right) -> tree_next_left = Find_element(Tree, n) -> tree_next_left;
-                Find_min_element(Tree -> tree_next_right) -> tree_next_right = Find_element(Tree, n) -> tree_next_right;
-                delete Find_element(Tree, n);
-                return Balance(Tree);
-            }
-        }
-    }
-}
-
-template <typename T> //6 - удаление максимального узла
-Tree_element<T>* Delete_right_elements (Tree_element<T>* Tree)
-{
-    delete Find_max_element(Tree);
-    return Balance(Tree);
-}
-
-template <typename T> //6 - удаление минимального узла
-T* Delete_left_elements (Tree_element<T>* Tree)
-{
-    delete Find_min_element(Tree);
-    return Balance(Tree);
-}
-
-template <typename T> //2
-void Destructor (Tree_element<T>* Tree)
-{
-    while (Find_max_element(Tree) != Tree)
-    {
-        Delete_max_elements(Tree);
-    }
-    while (Find_min_element(Tree) != Tree)
-    {
-        Delete_min_elements(Tree);
-    }
-    delete Tree;
-}
-
-template <typename T> //5
-void Print (Tree_element<T>* Tree)
-{
-	Balance(Tree);
-	unsigned int key1 = Find_max_element(Tree) -> key;
-    	unsigned int key2 = Find_min_element(Tree) -> key;
-    	unsigned int key_max;
-   	if (key1 >= key2)
-   	{
-		key_max = key1;
-   	}
+	if (tree_element->tree_prev == nullptr)
+	{
+		tree->tree_root = tree_element->tree_next_right;
+		Tree_element<T, K>* tree_time = tree_element->tree_next_right->tree_next_left;
+		tree_element->tree_next_right->tree_next_left = tree_element;
+		tree_element->tree_next_right->tree_prev = nullptr;
+		tree_element->tree_prev = tree_element->tree_next_right;
+		tree_element->tree_next_right = tree_time;
+		tree_time->tree_prev = tree_element;
+	}
 	else
 	{
-		key_max = key2;
+		if (tree_element->tree_prev->tree_next_right = tree_element)
+		{
+			tree_element->tree_prev->tree_next_right = tree_element->tree_next_right;
+		}
+		else 
+		{
+			tree_element->tree_prev->tree_next_left = tree_element->tree_next_right;
+		}
+		Tree_element<T, K>* tree_time = tree_element->tree_next_right->tree_next_left;
+		tree_element->tree_next_right->tree_next_left = tree_element;
+		tree_element->tree_next_right->tree_prev = tree_element->tree_prev;
+		tree_element->tree_prev = tree_element->tree_next_right;
+		tree_element->tree_next_right = tree_time;
+		tree_time->tree_prev = tree_element;
 	}
-	size_t String_size = 2 * pow (2, key_max) - 1;
-	for (unsigned int key_time = 0; key_time <= key_max; key_time++)
+	Fix_height(tree_element->tree_prev);
+}
+
+template <typename T, typename K>
+void Little_right_spin(Tree<T, K>* tree, Tree_element<T, K>* tree_element)
+{
+	if (tree_element->tree_prev == nullptr)
 	{
-		unsigned int tabs = String_size / 2;
-		std::vector<T> Vec;
-		Print_help (Tree, key_time, Vec);
-		if (key_time != key_max)
-		{
-			for (unsigned int h = 0; h < tabs; h++)
-			{
-				std::cout << "\t";
-			{ 
-			for (int h: Vec)
-			{
-				std::cout << h;
-				while ((key_max - key_time) != 0)
-					{
-						std::cout << '\t";
-						
-					}
-			}
-			std::cout << "\n";
-			}
-		}
-		else //тогда это последний уровень дерева, что следует из его балансировки
-		{
-			Print_help_max (Tree, key_time, Vec);
-			for (int h: Vec)
-			{
-				std::cout << h << "\t";
-			}
-		}
-		tabs -= 1;
+		tree->tree_root = tree_element->tree_next_left;
+		Tree_element<T, K>* tree_time = tree_element->tree_next_left->tree_next_right;
+		tree_element->tree_next_left->tree_next_right = tree_element;
+		tree_element->tree_next_left->tree_prev = nullptr;
+		tree_element->tree_prev = tree_element->tree_next_left;
+		tree_element->tree_next_left = tree_time;
+		tree_time->tree_prev = tree_element;
 	}
-}
-
-template <typename T> //5 - для систематизации печати - заполнение вектора значениями дерева
-Tree_element<T>* Print_help (Tree_element<T>* Tree, unsigned int key_time, std::vector<T>& Vec)
-{
-	if (Tree -> key == key_time)
-	{	
-		Vec.push_back(Tree);
-	}
-	Print_help (Tree -> tree_next_left , key_time, Vec);	
-	Print_help (Tree -> tree_next_right , key_time, Vec);	
-	return Vec;
-}
-
-template <typename T> //5 - для систематизации печати - заполнение вектора значениями последнего уровня дерева
-Tree_element<T>* Print_help_max (Tree_element<T>* Tree, unsigned int key_max, std::vector<T>& Vec)
-{
-	if (Tree -> key == key_max - 1)
-	{	
-		if (Tree -> tree_next_left != 0)
+	else
+	{
+		if (tree_element->tree_prev->tree_next_right = tree_element)
 		{
-			Vec.push_back(Tree -> tree_next_left)
+			tree_element->tree_prev->tree_next_right = tree_element->tree_next_left;
 		}
 		else
 		{
-			Vec.push_back(" ");
+			tree_element->tree_prev->tree_next_left = tree_element->tree_next_left;
 		}
-		if (Tree -> tree_next_right != 0)
+		Tree_element<T, K>* tree_time = tree_element->tree_next_left->tree_next_right;
+		tree_element->tree_next_left->tree_next_right = tree_element;
+		tree_element->tree_next_left->tree_prev = tree_element->tree_prev;
+		tree_element->tree_prev = tree_element->tree_next_left;
+		tree_element->tree_next_left = tree_time;
+		tree_time->tree_prev = tree_element;
+	}
+	Fix_height(tree_element->tree_prev);
+}
+
+template <typename T, typename K>
+int Find_max_height(Tree_element<T, K>* tree_element)
+{
+	int max_height = 0;
+	if ((tree_element->tree_next_right == nullptr) && (tree_element->tree_next_left == nullptr))
+	{
+		max_height = tree_element->height;
+	}
+	else
+	{
+		int height_left = 0;
+		int height_right = 0;
+		if (tree_element->tree_next_right != nullptr)
 		{
-			Vec.push_back(Tree -> tree_next_right)
+			height_right = Find_max_height(tree_element->tree_next_right);
+		}
+		if (tree_element->tree_next_left != nullptr)
+		{
+			height_left = Find_max_height(tree_element->tree_next_left);
+		}
+		if (height_left > height_right)
+		{
+			max_height = height_left;
 		}
 		else
 		{
-			Vec.push_back(" ");
+			max_height = height_right;
 		}
 	}
-	Print_help_max (Tree -> tree_next_left , key_max, Vec);	
-	Print_help_max (Tree -> tree_next_right , key_max, Vec);
-	return Vec;
+	return max_height;
 }
+
+template <typename T, typename K>
+void Big_left_spin(Tree<T, K>* tree, Tree_element<T, K>* tree_element)
+{
+	Little_left_spin(tree, tree_element->tree_next_left);
+	Little_right_spin(tree, tree_element);
+}
+
+template <typename T, typename K>
+void Big_right_spin(Tree<T, K>* tree, Tree_element<T, K>* tree_element)
+{
+	Little_right_spin(tree, tree_element->tree_next_right);
+	Little_left_spin(tree, tree_element);
+}
+
+template <typename T, typename K>
+void Balance(Tree<T, K>* tree, Tree_element<T, K>* tree_element)
+{
+	if ((Find_max_height(tree->tree_root) > 2) && (tree_element->tree_next_left != nullptr) && (tree_element->tree_next_left->tree_next_left != nullptr) && 
+		(tree_element->tree_next_left->tree_next_right != nullptr) && (tree_element->tree_next_right != nullptr) && 
+		(tree_element->tree_next_left->tree_next_right != nullptr) && (tree_element->tree_next_right->tree_next_right != nullptr))
+	{
+		if (((Find_max_height(tree_element->tree_next_right) - Find_max_height(tree_element->tree_next_left)) == 2) &&
+				((Find_max_height(tree_element->tree_next_right->tree_next_left) == Find_max_height(tree_element->tree_next_right->tree_next_right)) ||
+					(Find_max_height(tree_element->tree_next_right->tree_next_right) - Find_max_height(tree_element->tree_next_right->tree_next_left) == 1)))
+		{
+			Little_left_spin(tree, tree_element);
+		}
+		else if (((Find_max_height(tree_element->tree_next_left) - Find_max_height(tree_element->tree_next_right)) == 2) &&
+			((Find_max_height(tree_element->tree_next_left->tree_next_left) == Find_max_height(tree_element->tree_next_left->tree_next_right)) ||
+				(Find_max_height(tree_element->tree_next_left->tree_next_left) - Find_max_height(tree_element->tree_next_left->tree_next_right) == 1)))
+		{
+			Little_right_spin(tree, tree_element);
+		}
+		else if (((Find_max_height(tree_element->tree_next_right) - Find_max_height(tree_element->tree_next_left)) == 2) &&
+			(Find_max_height(tree_element->tree_next_right->tree_next_left) > Find_max_height(tree_element->tree_next_right->tree_next_right)))
+		{
+			Big_left_spin(tree, tree_element);
+		}
+		else if (((Find_max_height(tree_element->tree_next_left) - Find_max_height(tree_element->tree_next_right)) == 2) &&
+			(Find_max_height(tree_element->tree_next_left->tree_next_right) > Find_max_height(tree_element->tree_next_left->tree_next_left)))
+		{
+			Big_right_spin(tree, tree_element);
+		}
+		while (tree_element->tree_next_left != nullptr)
+		{
+			Balance(tree, tree_element->tree_next_left);
+		}
+		while (tree_element->tree_next_left != nullptr)
+		{
+			Balance(tree, tree_element->tree_next_right);
+		}
+	}
+}
+
+template <typename T, typename K>
+void Push(Tree<T, K>* tree, Tree_element<T, K>* tree_element, T value, K key)
+{
+	if (tree->tree_root == nullptr)
+	{
+		tree->tree_root = new Tree_element<T, K>;
+		tree->tree_root->key = key;
+		tree->tree_root->value = value;
+		tree->tree_root->height = 1;
+		tree->tree_root->tree_next_right = nullptr;
+		tree->tree_root->tree_next_left = nullptr;
+		tree->tree_root->tree_prev = nullptr;
+	}
+	else
+	{
+		if (tree->tree_root->key < key)
+		{
+			if (tree->tree_root->tree_next_right == nullptr)
+			{
+				Push_help(tree->tree_root, value, key);
+			}
+			else
+			{
+				Push_help(tree->tree_root->tree_next_right, value, key);
+			}
+		}
+		else
+		{
+			if (tree->tree_root->tree_next_left == nullptr)
+			{
+				Push_help(tree->tree_root, value, key);
+			}
+			else
+			{
+				Push_help(tree->tree_root->tree_next_left, value, key);;
+			}
+		}
+	}
+	Balance(tree, tree->tree_root);
+}
+
+template <typename T, typename K>
+void Push_help(Tree_element<T, K>* tree_element, T value, K key)
+{
+	if (tree_element->key < key)
+	{
+		if (tree_element->tree_next_right == nullptr)
+		{
+			Tree_element<T, K>* tree_push = new Tree_element<T, K>;
+			tree_push->key = key;
+			tree_push->value = value;
+			tree_push->tree_next_right = nullptr;
+			tree_push->tree_next_left = nullptr;
+			tree_push->tree_prev = tree_element;
+			tree_element->tree_next_right = tree_push;
+			tree_push->height = tree_element->height + 1;
+		}
+		else
+		{
+			Push_help(tree_element->tree_next_right, value, key);
+		}
+	}
+	else
+	{
+		if (tree_element->tree_next_left == nullptr)
+		{
+			Tree_element<T, K>* tree_push = new Tree_element<T, K>;
+			tree_push->key = key;
+			tree_push->value = value;
+			tree_push->tree_next_right = nullptr;
+			tree_push->tree_next_left = nullptr;
+			tree_push->tree_prev = tree_element;
+			tree_element->tree_next_left = tree_push;
+			tree_push->height = tree_element->height + 1;
+		}
+		else
+		{
+			Push_help(tree_element->tree_next_left, value, key);
+		}
+	}
+}
+
+template <typename T, typename K>
+ void Pop(Tree<T, K>* tree, Tree_element<T, K>* tree_element, K key)
+{
+	 if (tree->tree_root == nullptr)
+	 {
+		 std::cout << "The tree is clear.\n";
+	 }
+	 else
+	 {
+		 if (tree->tree_root->key > key)
+		 {
+			 Pop_help(tree->tree_root->tree_next_left, key);
+		 }
+		 else 
+		 {
+			 Pop_help(tree->tree_root->tree_next_right, key);
+		 }
+	 }
+	 Balance(tree, tree->tree_root);
+}
+
+ template <typename T, typename K>
+ Tree_element<T, K>* Find_min_key(Tree_element<T, K>* tree_element)
+ {
+	 if (tree_element->tree_next_left == nullptr)
+	 {
+		 return tree_element;
+	 }
+	 else
+	 {
+		 Find_min_key(tree_element->tree_next_left);
+	 }
+ }
+
+ template <typename T, typename K>
+ void Pop_help(Tree_element<T, K>* tree_element, K key)
+ {
+	 if (tree_element->key == key)
+	 {
+		 if ((tree_element->tree_next_right == nullptr) && (tree_element->tree_next_left == nullptr))
+		 {
+			 std::cout << "Your element is " << tree_element->value << "\n";
+			 if (tree_element->tree_prev->tree_next_right = tree_element)
+			 {
+				 tree_element->tree_prev->tree_next_right = nullptr;
+			 }
+			 else
+			 {
+				 tree_element->tree_prev->tree_next_left = nullptr;
+			 }
+			 delete tree_element;
+		 }
+		 else
+		 {
+			 Tree_element<T, K>* tree_time = Find_min_key(tree_element->tree_next_right);
+			 if (Find_min_key(tree_element->tree_next_right)->tree_prev->tree_next_right = tree_element)
+			 {
+				 Find_min_key(tree_element->tree_next_right)->tree_prev->tree_next_right = nullptr;
+			 }
+			 else
+			 {
+				 Find_min_key(tree_element->tree_next_right)->tree_prev->tree_next_left = nullptr;
+			 }
+			 delete Find_min_key(tree_element->tree_next_right);
+			 std::cout << "Your element is " << tree_element->value << "\n";
+			 if (tree_element->tree_prev->tree_next_right = tree_element)
+			 {
+				 tree_element->tree_prev->tree_next_right = tree_time;
+			 }
+			 else
+			 {
+				 tree_element->tree_prev->tree_next_left = tree_time;
+			 }
+			 tree_time->tree_prev = tree_element->tree_prev;
+			 tree_time->tree_next_left = tree_element->tree_next_left;
+			 if (tree_time->tree_next_right == nullptr)
+			 {
+				 tree_time->tree_next_right = tree_element->tree_next_right;
+			 }
+			 else
+			 {
+				 tree_time->tree_next_right->tree_next_right = tree_element->tree_next_right;
+			 }
+			 delete tree_element;
+		 }
+	 }
+	 else if ((tree_element->tree_next_right == nullptr) && (tree_element->tree_next_left == nullptr))
+	 {
+		 std::cout << "There isn't your element.";
+	 }
+	 else if (tree_element->key > key)
+	 {
+		 if (tree_element->tree_next_left == nullptr)
+		 {
+			 std::cout << "There isn't your element.";
+		 }
+		 else
+		 {
+			 Pop_help(tree_element->tree_next_left, key);
+		 }
+	 }
+	 else if (tree_element->key < key)
+	 {
+		 if (tree_element->tree_next_right == nullptr)
+		 {
+			 std::cout << "There isn't your element.";
+		 }
+		 else
+		 {
+			 Pop_help(tree_element->tree_next_right, key);
+		 }
+	 }
+ }
+
+ template <typename T, typename K>
+ void Destructor(Tree<T, K>* tree)
+ {
+	 if (tree->tree_root == nullptr)
+	 {
+		 std::cout << "Your tree is clear.";
+	 }
+	 else if ((tree->tree_root->tree_next_right == nullptr) && (tree->tree_root->tree_next_left == nullptr))
+	 {
+		 delete tree->tree_root;
+	 }
+	 else
+	 {
+		 if (tree->tree_root->tree_next_right != nullptr)
+		 {
+			 Destructor_help(tree->tree_root->tree_next_right);
+		 }
+		 if (tree->tree_root->tree_next_left != nullptr)
+		 {
+			 Destructor_help(tree->tree_root->tree_next_left);
+		 }
+	 }
+ }
+
+ template <typename T, typename K>
+ void Destructor_help(Tree_element<T, K>* tree_element)
+ {
+	 if ((tree_element->tree_next_right == nullptr) && (tree_element->tree_next_left == nullptr))
+	 {
+		 delete tree_element;
+	 }
+	 else
+	 {
+		 if (tree_element->tree_next_right != nullptr)
+		 {
+			 Destructor_help(tree_element->tree_next_right);
+		 }
+		 if (tree_element->tree_next_left != nullptr)
+		 {
+			 Destructor_help(tree_element->tree_next_left);
+		 }
+	 }
+ }
+
+ template <typename T, typename K>
+ void Print(Tree<T, K>* tree)
+ {
+	 int max_height = Find_max_height(tree->tree_root);
+	 int print_size = 2 * pow(2, max_height) - 1;
+	 std::vector <Tree_element<T, K>*> Vec;
+	 for (int h = 1; h <= max_height; h++)
+	 {
+		 Print_help(Vec, h, tree->tree_root);
+		 double tabs_time = (print_size - pow(2, (h - 1))) / (pow(2, (h - 1)) + 1);
+		 int tabs = static_cast<int>(tabs_time);
+		 int extra_tab = 0;
+		 if (tabs_time != static_cast<int>(tabs_time))
+		 {
+			 extra_tab += 1;
+		 }
+		 for (int x = 0; x < pow(2, (h - 1)); x++)
+		 {
+			 for (int i = 0; i < tabs; i++)
+			 {
+				 std::cout << "\t";
+			 }
+			 if (Vec[x]->height != 0)
+			 {
+				 std::cout << Vec[x]->key << ": " << Vec[x]->value << "\t";
+			 }
+			 else
+			 {
+				 std::cout << "\t";
+			 }
+			 if ((x == ((pow(2, (h - 1)) / 2)) - 1) && (extra_tab != 0))
+			 {
+				 std::cout << "\t";
+			 }
+		 }
+		 std::cout << "\n";
+		 Vec.clear();
+	 }
+ }
+
+ template <typename T, typename K>
+ void Print_help(std::vector <Tree_element<T, K>*>& Vec, int h, Tree_element<T, K>* tree_element)
+ {
+	 if (tree_element->height == h)
+	 {
+		 Vec.push_back(tree_element);
+	 } 
+	 else if (tree_element->height < h)
+	 {
+		 if (tree_element->tree_next_left == nullptr)
+		 {
+			 Tree_element<T, K>* tree_print = new Tree_element<T, K>;
+			 tree_print->height = 0;
+			 Vec.push_back(tree_print);
+		 }
+		 else
+		 {
+			 Print_help(Vec, h, tree_element->tree_next_left);
+		 }
+		 if (tree_element->tree_next_right == nullptr)
+		 {
+			 Tree_element<T, K>* tree_print = new Tree_element<T, K>;
+			 tree_print->height = 0;
+			 Vec.push_back(tree_print);
+		 }
+		 else
+		 {
+			 Print_help(Vec, h, tree_element->tree_next_right);
+		 }
+	 }
+ }
 
 int main()
 {
-    //проверка для стандартного типа
-    Tree_element<std::vector>* tree_time = new Tree_element<std::vector>;
-    Constructor (tree_time);
-    for (int i = 0; i < 10; ++i)
-	{
-		tree_time = Push(tree_time, i);
-	}
-	Print(tree_time);
-	std::cout << "\n\n";
-	Erase (tree_time, 10);
-	Erase (tree_time, 2);
-	Erase (tree_time, 4);
-	Print(tree_time);
-	Destructor(tree_time);
-    return 0;
+	Tree<int, int>* My_tree = new Tree<int, int>;
+	Constructor(My_tree);
+	Tree_element <int, int>* My_tree_element = new Tree_element <int, int>;
+	My_tree_element->key = 5;
+	My_tree_element->value = 17;
+	My_tree_element->height = 1;
+	My_tree_element->tree_next_left = nullptr;
+	My_tree_element->tree_next_right = nullptr;
+	My_tree_element->tree_prev = nullptr;
+	My_tree->tree_root = My_tree_element;
+	Push(My_tree, My_tree->tree_root, 25, 3);
+	Push(My_tree, My_tree->tree_root, 35, 6);
+	Push(My_tree, My_tree->tree_root, 57, 7);
+	Pop(My_tree, My_tree->tree_root, 7);
+	Print(My_tree);
+	Destructor(My_tree);
+	return 0;
 }
