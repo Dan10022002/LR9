@@ -1,4 +1,4 @@
-include <iostream>
+#include <iostream>
 #include <cmath>
 #include <vector>
 
@@ -54,13 +54,13 @@ void Little_left_spin(Tree<T, K>* tree, Tree_element<T, K>* tree_element)
 	}
 	else
 	{
-		if (tree_element->tree_prev->tree_next_right = tree_element)
+		if (tree_element->tree_prev->tree_next_right == tree_element)
 		{
 			tree_element->tree_prev->tree_next_right = tree_element->tree_next_right;
 		}
 		else 
 		{
-			tree_element->tree_prev->tree_next_left = tree_element->tree_next_right;
+			tree_element->tree_prev->tree_next_left == tree_element->tree_next_right;
 		}
 		Tree_element<T, K>* tree_time = tree_element->tree_next_right->tree_next_left;
 		tree_element->tree_next_right->tree_next_left = tree_element;
@@ -87,13 +87,13 @@ void Little_right_spin(Tree<T, K>* tree, Tree_element<T, K>* tree_element)
 	}
 	else
 	{
-		if (tree_element->tree_prev->tree_next_right = tree_element)
+		if (tree_element->tree_prev->tree_next_right == tree_element)
 		{
 			tree_element->tree_prev->tree_next_right = tree_element->tree_next_left;
 		}
 		else
 		{
-			tree_element->tree_prev->tree_next_left = tree_element->tree_next_left;
+			tree_element->tree_prev->tree_next_left == tree_element->tree_next_left;
 		}
 		Tree_element<T, K>* tree_time = tree_element->tree_next_left->tree_next_right;
 		tree_element->tree_next_left->tree_next_right = tree_element;
